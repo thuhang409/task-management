@@ -18,25 +18,38 @@
 </head>
 
 <body>
-  <div class="container">
-    <header class="text-center text-light my-4">
-      <h1 class="mb-4">Todo List</h1>
-      <form class="search">
-        <input class="form-control m-auto" type="text" name="search" placeholder="search todos" />
-      </form>
-    </header>
-
-    <ul class="list-group todos mx-auto text-light delete">
-    </ul>
-
-    <form class="add text-center my-4">
-      <label class="text-light">Add a new todo...
-        <input class="form-control m-auto" type="text" name="add" id="new-todo" />
-      </label>
-      <br />
-      <br />
-      <button id="btn" class="btn btn-secondary">Submit</button>
+  <header class="text-center text-light my-4">
+    <h1 class="mb-4">Todo List</h1>
+    <form class="search">
+      <input class="form-control m-auto" type="text" name="search" placeholder="search todos" />
     </form>
+  </header>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <header>To do</header>
+        <ul class="list-group todos mx-auto text-light">
+        </ul>
+    
+        <form class="add text-center my-4">
+            <input class="form-control m-auto" type="text" name="add" id="new-todo" />
+          </label>
+          <br />
+          <br />
+          <button id="btn" class="btn btn-secondary">Submit</button>
+        </form>
+      </div>
+      <div class="col">
+        <header>Doing</header>
+        <ul class="list-group todos mx-auto text-light">
+        </ul>
+      </div>
+      <div class="col">
+        <header>Done</header>
+        <ul class="list-group todos mx-auto text-light">
+        </ul>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>
