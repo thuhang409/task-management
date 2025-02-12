@@ -26,7 +26,7 @@
   </header>
   <div class="container">
     <div class="row">
-      <div class="col">
+      <div class="col left">
         <header>To do</header>
         <ul class="list-group todos mx-auto text-light">
         </ul>
@@ -36,18 +36,32 @@
           </label>
           <br />
           <br />
-          <button id="btn" class="btn btn-secondary">Submit</button>
+          <button id="btn" class="btn btn-secondary"  style="display: none;"></button>
         </form>
       </div>
-      <div class="col">
+      <div class="col center" >
         <header>Doing</header>
-        <ul class="list-group todos mx-auto text-light">
+        <ul class="list-group doing mx-auto text-light">
         </ul>
+        <form class="add text-center my-4">
+          <input class="form-control m-auto" type="text" name="add" id="new-doing" />
+        </label>
+        <br />
+        <br />
+        <button id="btn" class="btn btn-secondary"  style="display: none;"></button>
+      </form>
       </div>
-      <div class="col">
-        <header>Done</header>
-        <ul class="list-group todos mx-auto text-light">
+      <div class="col right">
+        <header>Complete</header>
+        <ul class="list-group completed mx-auto text-light">
         </ul>
+        <form class="add text-center my-4">
+          <input class="form-control m-auto" type="text" name="add" id="new-completed" />
+        </label>
+        <br />
+        <br />
+        <button id="btn" class="btn btn-secondary"  style="display: none;"></button>
+      </form>
       </div>
     </div>
   </div>

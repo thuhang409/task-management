@@ -2,10 +2,13 @@ body {
     background: #352f5b;
     font-family: "Josefin Sans", sans-serif;
     font-size: 23px;
+    color: #fff;
   }
   
   .container {
     max-width: 1000px;
+    align-items: center;
+
   }
   
   input[type="text"],
@@ -16,7 +19,7 @@ body {
     max-width: 400px;
   }
   
-  .todos li {
+  .list-group li {
     background: #423a6f;
     color: #fff;
   }
@@ -54,4 +57,11 @@ body {
   .list-group li.checked::before {
     background-image: url("images/checked2.png");
     background-size: cover;
+  }
+
+  .col {
+    width: 300px;
+    min-height: 400px;
+    margin: 20px;
+    border: 0.5px ridge;
   }

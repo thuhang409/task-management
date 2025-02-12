@@ -6,29 +6,9 @@ $(document).ready(function() {
     });
 
     // Add a new to do
-    $("#btn").click(function(event) {
-        event.preventDefault();
-        let newTodo = $("#new-todo").val().trim();
-        if (newTodo === "") {
-            alert("...")
-        }
-        else {
-            let todoItem = $(`
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="ms-2 me-auto">
-                        <div class="fw-bold todoText">${newTodo}</div>
-                        <span class="badge rounded-pill bg-primary categories"></span>
-                    </div>
-                    <span class="far fa-edit-alt edit"></span>
-                    <span class="far fa-trash-alt delete"></span>
-                </li>`);
-            $(".list-group").append(todoItem);
-            $("#new-todo").val("");
-
-            // Categorize
-            categorizeTask(newTodo, todoItem.find(".categories"))
-        }
-    });
+    addTask(".btn", "#new-todo",".todos");
+    addTask(".btn", "#new-doing",".doing");
+    addTask(".btn", "#new-completed",".completed");
 
     // Search todo
     $(".search input").on("keyup", function() {
@@ -48,8 +28,7 @@ $(document).ready(function() {
     });
 });
 
-// const apiKey = "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"; // Thay bằng API Key của bạn
-const apiKey = ""
+// const apiKey = ""
 async function categorizeTask(task, badgeElement) {
     const prompt = `Phân loại nhiệm vụ sau thành một trong các danh mục: Work, Personal, Social, Other.
         \nNhiệm vụ: "${task}"
@@ -98,4 +77,26 @@ async function categorizeTask(task, badgeElement) {
         }
     });
 
+}
+
+function addTask(button_id, inputText_id, group_name) {
+    $(button_id).click(function(event) {
+    event.preventDefault();
+    let newTodo = $(inputText_id).val().trim();
+    if (newTodo !== "") {
+        let todoItem = $(`
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold todoText">${newTodo}</div>
+                    <span class="badge rounded-pill bg-primary categories"></span>
+                </div>
+                <span class="far fa-edit-alt edit"></span>
+                <span class="far fa-trash-alt delete"></span>
+            </li>`);
+        $(group_name).append(todoItem);
+        $(inputText_id).val("");
+        // Categorize
+        categorizeTask(newTodo, todoItem.find(".categories"))
+    }
+    })
 }
