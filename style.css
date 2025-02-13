@@ -41,23 +41,23 @@ body {
     transition: 0.8s;
   }
   
-  .list-group li::before {
+  /* .list-group li::before {
     content:"";
     width: 28px;
     height: 28px;
     background-image: url("images/uncheck2.png");
     background-size: cover;
     padding: 10px;
-  }
+  } */
 
   .list-group li.checked .taskText{
     text-decoration: line-through;
   }
 
-  .list-group li.checked::before {
+  /* .list-group li.checked::before {
     background-image: url("images/checked2.png");
     background-size: cover;
-  }
+  } */
 
   .col {
     width: 300px;
@@ -65,3 +65,33 @@ body {
     margin: 20px;
   }
 
+
+/* 
+  /* chatbot */
+  .chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    border: 3px solid #f1f1f1;
+    z-index: 9;
+  }
+
+  .open-button {
+    background-color: #555;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+    position: fixed;
+    bottom: 23px;
+    right: 28px;
+    width: 280px;
+  }
+
+  .form-container {
+    max-width: 300px;
+    padding: 10px;
+    background-color: #555;
+  } */

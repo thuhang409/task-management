@@ -8,9 +8,7 @@ $(document).ready(function () {
     });
 
     // Add a new to do
-    addTask("#btn-todo", "#new-todo", ".todos");
-    addTask("#btn-doing", "#new-doing", ".doing");
-    addTask("#btn-completed", "#new-completed", ".completed");
+    addTask();
 
     // Edit task
     $(".list-group").on("dblclick", ".taskText", function(){
@@ -51,6 +49,13 @@ $(document).ready(function () {
     // Count task
     updateTaskCounter();
     
+    // Display the conversation
+    $("#btn-send").on("click", function(e) {
+        e.preventDefault();
+        messageText = $("input.message")
+        $(".conversation").append(`<div>You: ${messageText.val()}</div>`)
+        messageText.val("")
+    })
 
 });
 
@@ -63,55 +68,42 @@ function updateTaskCounter() {
 }
 
 
-const apiKey = ""
-async function categorizeTask(task, badgeElement) {
-    const prompt = `Phân loại nhiệm vụ sau thành một trong các danh mục: Work, Personal, Social, Other.
-        \nNhiệm vụ: "${task}"
-        \nDanh mục:`;
-
-    $.ajax({
-        url: "https://api.openai.com/v1/completions",
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-        },
-        data: JSON.stringify({
-            model: "gpt-3.5-turbo-instruct",
-            prompt: prompt,
-            max_tokens: 10,
-            temperature: 0
-        }),
-        success: function (response) {
-            console.log(response);
-            let category = response.choices[0].text.trim();
-            badgeElement.text(category); // Hiển thị kết quả
-            console.log(category);
-
-            switch (category) {
-                case "Work":
-                    badgeElement.addClass("bg-primary");
-                    break;
-                case "Personal":
-                    badgeElement.addClass("bg-warning text-dark");
-                    break;
-                case "Social":
-                    badgeElement.addClass("bg-success");
-                    break;
-                case "Other":
-                    badgeElement.addClass("bg-danger");
-                    break;
-                default:
-                    badgeElement.addClass("bg-secondary");
+function processTask(task) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: "https://api.openai.com/v1/chat/completions",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            data: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    { role: "system", content: "You are a chatbot that converts natural language input into a structured to-do list." },
+                    { role: "user", content: `Extract the task, classify its status (To Do, Doing, Done), categorical (Personal, Work, Social, Other) from this sentence: "${task}". Return the response in JSON format.` }
+                ],
+            }),
+            success: function (response) {
+                console.log(response);
+                let reply = response.choices[0].message.content;
+                try {
+                    let taskData = JSON.parse(reply);
+                    console.log(taskData);
+                    
+                    resolve(taskData);
+                } catch (error) {
+                    console.error("Error parsing response:", error);
+                    reject("API request failed")
+                }
+            },
+            error: function () {
+                // $("#result").text("Lỗi khi gọi API!");
+                badgeElement.text("undefined");
+                console.log("Got an error.")
             }
-        },
-        error: function () {
-            // $("#result").text("Lỗi khi gọi API!");
-            badgeElement.text("undefined");
-            console.log("Got an error.")
-        }
+        });
     });
-
 }
 
 function enableDragAndDropItem(item) {
@@ -130,7 +122,6 @@ function enableDragAndDrop() {
     })
 
     $(".left, .center, .right").on("dragover", function (e) {
-        console.log("dragover")
         e.preventDefault();
     });
     
@@ -138,7 +129,6 @@ function enableDragAndDrop() {
         e.preventDefault();
         let taskId = e.originalEvent.dataTransfer.getData("text/plain");
         let taskElement = document.getElementById(taskId);
-        console.log(taskElement)
         if (taskElement) {
             $(this).find('ul').append(taskElement);
         }
@@ -146,29 +136,58 @@ function enableDragAndDrop() {
     })   
 }
 
-function addTask(button_id, inputText_id, group_name) {
-    $(button_id).on("click", function (event) {
+function addTask() {
+    $(".col").on("click", async function (event) {
         event.preventDefault();
 
-        let newTodo = $(inputText_id).val().trim();
+        inputTaskElement = $(this).find(".input-new-task")
+        let newTodo = inputTaskElement.val().trim();
         
         if (newTodo !== "") {
+            let inputData = await processTask(newTodo);
+            console.log("input data", inputData)
             taskItem = $(`
             <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
                 <div class="ms-2 me-auto">
-                    <div class="fw-bold taskText">${newTodo}</div>
-                    <span class="badge rounded-pill bg-primary categories"></span>
+                    <div class="fw-bold taskText">${inputData.task}</div>
+                    <span class="badge rounded-pill bg-primary categories">${inputData.category}</span>
                 </div>
-                <span class="far fa-edit-alt edit"></span>
                 <span class="far fa-trash-alt delete"></span>
             </li>`);
-            $(group_name).append(taskItem);
-            $(inputText_id).val("");
-            // Categorize
-            categorizeTask(newTodo, taskItem.find(".categories"))
+            $(this).find('.list-group').append(taskItem);
+            let badgeElement = taskItem.find(".categories");
+            decorateBagde(badgeElement,inputData.category);
+            inputTaskElement.val("");
 
             // Add dragstart 
             enableDragAndDropItem(taskItem[0])
         }
     })
 }
+
+function decorateBagde(badgeElement, category) {
+    switch (category) {
+        case "Work":
+            badgeElement.addClass("bg-primary");
+            break;
+        case "Personal":
+            badgeElement.addClass("bg-warning text-dark");
+            break;
+        case "Social":
+            badgeElement.addClass("bg-success");
+            break;
+        case "Other":
+            badgeElement.addClass("bg-danger");
+            break;
+        default:
+            badgeElement.addClass("bg-secondary");
+    }
+}
+
+// function openForm() {
+//     document.getElementById("myForm").style.display = "block";
+//   }
+  
+// function closeForm() {
+//     document.getElementById("myForm").style.display = "none";
+// }
