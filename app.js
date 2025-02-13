@@ -1,34 +1,36 @@
-$(document).ready(function() {
-    
+$(document).ready(function () {
+
     // Delete todo
-    $(".list-group").on("click", ".delete", function() {
+    $(".list-group").on("click", ".delete", function () {
         $(this).closest("li").remove();
     });
 
     // Add a new to do
-    addTask(".btn", "#new-todo",".todos");
-    addTask(".btn", "#new-doing",".doing");
-    addTask(".btn", "#new-completed",".completed");
+    addTask(".btn", "#new-todo", ".todos");
+    addTask(".btn", "#new-doing", ".doing");
+    addTask(".btn", "#new-completed", ".completed");
 
     // Search todo
-    $(".search input").on("keyup", function() {
+    $(".search input").on("keyup", function () {
         let searchText = $(this).val().toLowerCase();
-        $(".list-group li").each(function() {
+        $(".list-group li").each(function () {
             let itemText = $(this).text().toLowerCase();
-            if (!itemText.includes(searchText)){
+            if (!itemText.includes(searchText)) {
                 $(this).addClass("filtered");
             }
-            else {$(this).removeClass("filtered");}
+            else { $(this).removeClass("filtered"); }
         });
     });
 
     // Check and uncheck
-    $(".list-group").on("click", "li", function() {
+    $(".list-group").on("click", "li", function () {
         $(this).toggleClass("checked");
     });
+
 });
 
-// const apiKey = ""
+
+const apiKey = ""
 async function categorizeTask(task, badgeElement) {
     const prompt = `Phân loại nhiệm vụ sau thành một trong các danh mục: Work, Personal, Social, Other.
         \nNhiệm vụ: "${task}"
@@ -68,7 +70,7 @@ async function categorizeTask(task, badgeElement) {
                     break;
                 default:
                     badgeElement.addClass("bg-secondary");
-              }
+            }
         },
         error: function () {
             // $("#result").text("Lỗi khi gọi API!");
@@ -80,12 +82,12 @@ async function categorizeTask(task, badgeElement) {
 }
 
 function addTask(button_id, inputText_id, group_name) {
-    $(button_id).click(function(event) {
-    event.preventDefault();
-    let newTodo = $(inputText_id).val().trim();
-    if (newTodo !== "") {
-        let todoItem = $(`
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+    $(button_id).click(function (event) {
+        event.preventDefault();
+        let newTodo = $(inputText_id).val().trim();
+        if (newTodo !== "") {
+            let todoItem = $(`
+            <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
                 <div class="ms-2 me-auto">
                     <div class="fw-bold todoText">${newTodo}</div>
                     <span class="badge rounded-pill bg-primary categories"></span>
@@ -93,10 +95,41 @@ function addTask(button_id, inputText_id, group_name) {
                 <span class="far fa-edit-alt edit"></span>
                 <span class="far fa-trash-alt delete"></span>
             </li>`);
-        $(group_name).append(todoItem);
-        $(inputText_id).val("");
-        // Categorize
-        categorizeTask(newTodo, todoItem.find(".categories"))
-    }
+            $(group_name).append(todoItem);
+            $(inputText_id).val("");
+            // Categorize
+            categorizeTask(newTodo, todoItem.find(".categories"))
+
+            // Add dragstart 
+            todoItem.on("dragstart", function (e) {
+                let selected = e.target;
+                $(".left").on("dragover", function (e) {
+                    e.preventDefault();
+                });
+                $(".left").on("drop", function (e) {
+                    let ul = $(".left ul");
+                    ul.append(selected);
+                    selected = null;
+                });
+
+                $(".center").on("dragover", function (e) {
+                    e.preventDefault();
+                });
+                $(".center").on("drop", function (e) {
+                    let ul = $(".center ul");
+                    ul.append(selected);
+                    selected = null;
+                });
+
+                $(".right").on("dragover", function (e) {
+                    e.preventDefault();
+                });
+                $(".right").on("drop", function (e) {
+                    let ul = $(".right ul");
+                    ul.append(selected);
+                    selected = null;
+                });
+            });
+        }
     })
 }

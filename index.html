@@ -29,6 +29,14 @@
       <div class="col left">
         <header>To do</header>
         <ul class="list-group todos mx-auto text-light">
+          <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold todoText">sample 1</div>
+                <span class="badge rounded-pill bg-primary categories">cate</span>
+            </div>
+            <span class="far fa-edit-alt edit"></span>
+            <span class="far fa-trash-alt delete"></span>
+          </li>
         </ul>
     
         <form class="add text-center my-4">
@@ -39,9 +47,18 @@
           <button id="btn" class="btn btn-secondary"  style="display: none;"></button>
         </form>
       </div>
+
       <div class="col center" >
         <header>Doing</header>
-        <ul class="list-group doing mx-auto text-light">
+        <ul class="list-group doing mx-auto text-light center">
+          <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
+            <div class="ms-2 me-auto">
+                <div class="fw-bold todoText">sample 1</div>
+                <span class="badge rounded-pill bg-primary categories">cate</span>
+            </div>
+            <span class="far fa-edit-alt edit"></span>
+            <span class="far fa-trash-alt delete"></span>
+          </li>
         </ul>
         <form class="add text-center my-4">
           <input class="form-control m-auto" type="text" name="add" id="new-doing" />
@@ -51,6 +68,7 @@
         <button id="btn" class="btn btn-secondary"  style="display: none;"></button>
       </form>
       </div>
+
       <div class="col right">
         <header>Complete</header>
         <ul class="list-group completed mx-auto text-light">
@@ -66,7 +84,9 @@
     </div>
   </div>
 
+
   <script src="app.js"></script>
 </body>
+
 
 </html>
