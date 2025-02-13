@@ -50,7 +50,7 @@ body {
     padding: 10px;
   }
 
-  .list-group li.checked .todoText{
+  .list-group li.checked .taskText{
     text-decoration: line-through;
   }
 
@@ -63,5 +63,5 @@ body {
     width: 300px;
     min-height: 400px;
     margin: 20px;
-    border: 0.5px ridge;
   }
+

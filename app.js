@@ -1,11 +1,10 @@
 let taskCounter = 0;
 
 $(document).ready(function () {
-
-
     // Delete todo
     $(".list-group").on("click", ".delete", function () {
         $(this).closest("li").remove();
+        updateTaskCounter();
     });
 
     // Add a new to do
@@ -13,12 +12,31 @@ $(document).ready(function () {
     addTask("#btn-doing", "#new-doing", ".doing");
     addTask("#btn-completed", "#new-completed", ".completed");
 
+    // Edit task
+    $(".list-group").on("dblclick", ".taskText", function(){
+        console.log('dblclick');
+        let currentText = $(this).text()
+        let inputField = $('<input class="form-control m-auto" type="text" name="add" id="new-completed"/>');
+        inputField.val(currentText)
+        $(this).replaceWith(inputField);
+        inputField.focus()
+
+        inputField.on("blur keypress", function(e) {
+            if ((e.type==="blur") || (e.key === "Enter")) {
+                let newText = $(this).val();
+                $(this).replaceWith(`<div class="fw-bold taskText">${newText}</div>`);
+            }
+        })
+    })
+
+
     // Search todo
     $(".search input").on("keyup", function () {
         let searchText = $(this).val().toLowerCase();
         $(".list-group li").each(function () {
             let itemText = $(this).text().toLowerCase();
             $(this).toggleClass("filtered",!itemText.includes(searchText));
+            updateTaskCounter();
         });
     });
 
@@ -26,10 +44,23 @@ $(document).ready(function () {
     $(".list-group").on("click", "li", function () {
         $(this).toggleClass("checked");
     });
+    
+    // Drag and drop
+    enableDragAndDrop();
 
-    enableDragAndDrop()
+    // Count task
+    updateTaskCounter();
+    
 
 });
+
+function updateTaskCounter() {
+    $(".col").each(function () {
+        let taskCount = $(this).find(".list-group-item").not(".filtered").length; 
+        console.log(taskCount)
+        $(this).find(".task-count").text(taskCount);
+    });
+}
 
 
 const apiKey = ""
@@ -84,10 +115,11 @@ async function categorizeTask(task, badgeElement) {
 }
 
 function enableDragAndDropItem(item) {
+    updateTaskCounter();
+
     $(item).attr("id", `task-${taskCounter++}`); // Unique ID for each task
 
     item.addEventListener("dragstart", function (e) {
-        console.log("dragstart")
         e.dataTransfer.setData("text/plain", item.id);
     });
 }
@@ -110,8 +142,8 @@ function enableDragAndDrop() {
         if (taskElement) {
             $(this).find('ul').append(taskElement);
         }
-    })
-   
+        updateTaskCounter();
+    })   
 }
 
 function addTask(button_id, inputText_id, group_name) {
@@ -124,7 +156,7 @@ function addTask(button_id, inputText_id, group_name) {
             taskItem = $(`
             <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
                 <div class="ms-2 me-auto">
-                    <div class="fw-bold todoText">${newTodo}</div>
+                    <div class="fw-bold taskText">${newTodo}</div>
                     <span class="badge rounded-pill bg-primary categories"></span>
                 </div>
                 <span class="far fa-edit-alt edit"></span>
