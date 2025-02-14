@@ -62,11 +62,13 @@ $(document).ready(function () {
 function updateTaskCounter() {
     $(".col").each(function () {
         let taskCount = $(this).find(".list-group-item").not(".filtered").length; 
-        console.log(taskCount)
         $(this).find(".task-count").text(taskCount);
     });
 }
 
+
+
+// const apiKey = "";
 
 function processTask(task) {
     return new Promise((resolve, reject) => {
@@ -85,22 +87,36 @@ function processTask(task) {
                 ],
             }),
             success: function (response) {
-                console.log(response);
+                // console.log(response);
                 let reply = response.choices[0].message.content;
                 try {
                     let taskData = JSON.parse(reply);
-                    console.log(taskData);
-                    
+
+                    // Ensure required fields exist, or set defaults
+                    taskData.task = taskData.task || task;
+                    taskData.status = taskData.status || "To Do";
+                    taskData.category = taskData.category || "undefined";
+
+                    // console.log(taskData);
                     resolve(taskData);
                 } catch (error) {
-                    console.error("Error parsing response:", error);
-                    reject("API request failed")
+                    let errorData = {
+                        "task": task,
+                        "status": "To Do",
+                        "category": "undefined"
+                    };
+                    resolve(errorData);
+                    console.log("Error when parsing data");
                 }
             },
             error: function () {
-                // $("#result").text("Lỗi khi gọi API!");
-                badgeElement.text("undefined");
-                console.log("Got an error.")
+                let errorData = {
+                    "task": task,
+                    "status": "To Do",
+                    "category": "undefined"
+                };
+                resolve(errorData);
+                console.log("Error when calling API");
             }
         });
     });
@@ -145,7 +161,7 @@ function addTask() {
         
         if (newTodo !== "") {
             let inputData = await processTask(newTodo);
-            console.log("input data", inputData)
+            // console.log("input data", inputData)
             taskItem = $(`
             <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
                 <div class="ms-2 me-auto">
