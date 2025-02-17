@@ -2,7 +2,7 @@ let taskCounter = 0;
 
 $(document).ready(function () {
     // Delete todo
-    $(".list-group").on("click", ".delete", function () {
+    $(".groups").on("click", ".delete", function () {
         $(this).closest("li").remove();
         updateTaskCounter();
     });
@@ -55,7 +55,56 @@ $(document).ready(function () {
         messageText = $("input.message")
         $(".conversation").append(`<div>You: ${messageText.val()}</div>`)
         messageText.val("")
-    })
+    });
+
+    // Add new group
+    $(".groups").on("click", ".new-group", async function(event) {
+        event.preventDefault();
+
+        inputGroupElement = $(this).find("#input-new-group");
+        let newGroup = inputGroupElement.val().trim();
+        
+        if (newGroup==="") {return };
+
+        console.log(newGroup);
+        let newGroupElement = `<div class="col group">
+                            <div>
+                            <span  class="group-name" >${newGroup}</span>
+                            <span class="badge bg-secondary task-count"></span>
+                            </div>
+                            
+                            <ul class="list-group todos mx-auto text-light">
+                            </ul>
+                        
+                            <form class="add text-center my-4">
+                            <input class="form-control m-auto input-new-task" type="text" name="add" placeholder="Add new"/>
+                            <br />
+                            <br />
+                            <button class="btn btn-secondary"  style="display: none;"></button>
+                            </form>
+                        </div>`;
+
+        $(this).before(newGroupElement);
+        inputGroupElement.val("");
+        updateTaskCounter();
+    });
+
+    // Edit group name
+    $(document).on("dblclick", ".group-name", function(){
+        console.log('dblclick');
+        let currentText = $(this).text()
+        let inputField = $('<input class="m-auto" type="text" name="add"/>');
+        inputField.val(currentText)
+        $(this).replaceWith(inputField);
+        inputField.focus()
+
+        inputField.on("blur keypress", function(e) {
+            if ((e.type==="blur") || (e.key === "Enter")) {
+                let newText = $(this).val();
+                $(this).replaceWith(`<span class="group-name">${newText}</span>`);
+            }
+        })
+    });
 
 });
 
@@ -67,6 +116,7 @@ function updateTaskCounter() {
 }
 
 
+const apiKey = "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"
 
 // const apiKey = "";
 
@@ -137,11 +187,11 @@ function enableDragAndDrop() {
         enableDragAndDropItem(this);
     })
 
-    $(".left, .center, .right").on("dragover", function (e) {
+    $(".groups").on("dragover",".left, .center, .right", function (e) {
         e.preventDefault();
     });
     
-    $(".left, .center, .right").on("drop", function (e) {
+    $(".groups").on("drop",".left, .center, .right", function (e) {
         e.preventDefault();
         let taskId = e.originalEvent.dataTransfer.getData("text/plain");
         let taskElement = document.getElementById(taskId);
@@ -153,7 +203,7 @@ function enableDragAndDrop() {
 }
 
 function addTask() {
-    $(".col").on("click", async function (event) {
+    $(".groups").on("click", ".group", async function (event) {
         event.preventDefault();
 
         inputTaskElement = $(this).find(".input-new-task")

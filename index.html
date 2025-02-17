@@ -25,10 +25,12 @@
     </form>
   </header>
   <div class="container">
-    <div class="row">
-      <div class="col left">
-        <div>To do 
-          <span class="badge bg-secondary task-count">1</span>
+    <div class="row groups">
+
+      <div class="col group">
+        <div>
+          <span  class="group-name">To do </span>
+          <span class="badge bg-secondary task-count"></span>
         </div>
           
         <ul class="list-group todos mx-auto text-light">
@@ -42,20 +44,28 @@
         </ul>
     
         <form class="add text-center my-4">
-            <input class="form-control m-auto input-new-task" type="text" name="add" id="new-todo" placeholder="Add new"/>
-          </label>
+          <input class="form-control input-new-task" type="text" name="add" placeholder="Add new"/>
           <br />
           <br />
-          <button id="btn-todo" class="btn btn-secondary"  style="display: none;"></button>
+          <button class="btn btn-secondary"  style="display: none;"></button>
         </form>
       </div>
 
-      <div class="col center" >
+      <div class="col new-group">
+          <form class="add-group">
+            <input class="form-control" type="text" name="add" placeholder="New group" id="input-new-group">
+            <br>
+            <button class="btn btn-secondary"  id="add-new-group">Add new</button>
+          </form>
+      </div>
+
+
+      <!-- <div class="col center" >
         <header>Doing
           <span class="badge bg-secondary task-count">1</span>
         </header>
         
-        <ul class="list-group doing mx-auto text-light center">
+        <ul class="list-group mx-auto text-light center">
           <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
             <div class="ms-2 me-auto">
                 <div class="fw-bold taskText">sample 1</div>
@@ -65,11 +75,11 @@
           </li>
         </ul>
         <form class="add text-center my-4">
-          <input class="form-control m-auto input-new-task" type="text" name="add" id="new-doing" placeholder="Add new"/>
+          <input class="form-control m-auto input-new-task" type="text" name="add" placeholder="Add new"/>
         </label>
         <br />
         <br />
-        <button id="btn-doing" class="btn btn-secondary"  style="display: none;"></button>
+        <button class="btn btn-secondary"  style="display: none;"></button>
       </form>
       </div>
 
@@ -86,7 +96,7 @@
         <br />
         <button id="btn-completed" class="btn btn-secondary"  style="display: none;"></button>
       </form>
-      </div>
+      </div> -->
     </div>
   </div>
 
