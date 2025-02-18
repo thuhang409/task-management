@@ -8,7 +8,6 @@ body {
   .container {
     max-width: 1000px;
     align-items: center;
-
   }
   
   input[type="text"],
@@ -60,8 +59,6 @@ body {
   } */
 
   .col {
-    width: 300px;
-    min-height: 400px;
     margin: 20px;
   }
 
@@ -97,3 +94,22 @@ body {
   } 
   */
   
+  .groups-container {
+    width: 100%; /* Adjust based on layout */
+    overflow: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent wrapping */
+    padding-bottom: 10px;
+}
+
+.groups {
+  display: flex;
+  gap: 15px; /* Space between groups */
+  min-width: max-content; /* Ensure it doesn't shrink */
+  padding: 10px;
+}
+
+
+.group {
+    min-width: 200px; /* Ensure each group has enough space */
+    flex-shrink: 0; /* Prevent shrinking */
+}

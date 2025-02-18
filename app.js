@@ -187,11 +187,11 @@ function enableDragAndDrop() {
         enableDragAndDropItem(this);
     })
 
-    $(".groups").on("dragover",".left, .center, .right", function (e) {
+    $(".groups").on("dragover",".group", function (e) {
         e.preventDefault();
     });
     
-    $(".groups").on("drop",".left, .center, .right", function (e) {
+    $(".groups").on("drop",".group", function (e) {
         e.preventDefault();
         let taskId = e.originalEvent.dataTransfer.getData("text/plain");
         let taskElement = document.getElementById(taskId);
@@ -257,3 +257,20 @@ function decorateBagde(badgeElement, category) {
 // function closeForm() {
 //     document.getElementById("myForm").style.display = "none";
 // }
+
+// function checkScrollable() {
+//     let groupCount = $(".groups .group").length;
+//     if (groupCount > 3) {
+//         $(".groups-container").css("overflow-x", "auto");
+//     } else {
+//         $(".groups-container").css("overflow-x", "hidden");
+//     }
+// }
+
+// // Call this function when a new group is added
+// $(".groups").on("click", ".new-group", function () {
+//     setTimeout(checkScrollable, 100); // Wait for the new group to render
+// });
+
+// // Also check on page load
+// $(document).ready(checkScrollable);
