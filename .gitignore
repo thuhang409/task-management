@@ -1,2 +1,10 @@
 .venv
 node_modules
+
+__pycache__
+.flaskenv
+
+.env
+FETCH_HEAD
+app.db
+migrations
