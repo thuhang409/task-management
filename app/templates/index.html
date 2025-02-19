@@ -8,22 +8,25 @@
 <div class="container groups-container">
     <div class="row groups d-flex">
 
-      <div class="col group ">
+      {% for grouptask in posts %}
+      <div class="col group"  data-id="{{ grouptask.id }}">
         <div>
-          <span  class="group-name">To do </span>
+          <span  class="group-name">{{grouptask.name}}</span>
           <span class="badge bg-secondary task-count"></span>
         </div>
-          
-        <ul class="list-group todos mx-auto text-light">
-          <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true">
-            <div class="ms-2 me-auto">
-                <div class="fw-bold taskText">sample 1</div>
-                <span class="badge rounded-pill bg-primary categories">cate</span>
-            </div>
-            <span class="far fa-trash-alt delete"></span>
-          </li>
+        
+        <ul class="list-group mx-auto text-light">
+          {% for task in grouptask.get_tasks() %}
+            <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true" data-id="{{task.id}}">
+              <div class="ms-2 me-auto">
+                  <div class="fw-bold taskText">{{task.name}}</div>
+                  <span class="badge rounded-pill bg-primary categories">{{task.category}}</span>
+              </div>
+              <span class="far fa-trash-alt delete"></span>
+            </li>
+          {% endfor %}
         </ul>
-    
+
         <form class="add text-center my-4">
           <input class="form-control input-new-task" type="text" name="add" placeholder="Add new"/>
           <br />
@@ -31,6 +34,7 @@
           <button class="btn btn-secondary"  style="display: none;"></button>
         </form>
       </div>
+      {% endfor %}
 
       <div class="col new-group">
           <form class="add-group">

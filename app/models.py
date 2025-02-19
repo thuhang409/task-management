@@ -31,6 +31,10 @@ class User(UserMixin, db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def grouptasks(self):
+        return db.session.scalars(sa.select(GroupTask).where(GroupTask.user_id == self.id)).all()
+
 
 
 class GroupTask(db.Model):
@@ -41,15 +45,38 @@ class GroupTask(db.Model):
     user: so.Mapped["User"] = so.relationship(back_populates="group_tasks")
     tasks: so.WriteOnlyMapped["Task"] = so.relationship(back_populates="group_task")
 
+    def __repr__(self):
+        return f"Group Task {self.name}"
+    
+    def get_tasks(self):
+        return db.session.scalars(sa.select(Task).where(Task.group_id == self.id)).all()
+    
+    def to_dict(self):
+        data = {"id":self.id,
+                "name": self.name,
+                "user_id": self.user_id
+                }
+        return data
+
 class Task(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
     description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     group_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("group_task.id"), nullable=False)
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
-
+    category: so.Mapped[str] = so.mapped_column(sa.String(100), nullable=True)
     group_task: so.Mapped["GroupTask"] = so.relationship(back_populates="tasks")
     # categoricals: so.WriteOnlyMapped["Categorical"] = so.relationship(secondary="task_categorical", back_populates="tasks")
+
+    def __repr__(self):
+        return f"Task {self.name}"
+    
+    def to_dict(self):
+        data = {"id":self.id,
+                "name": self.name,
+                "group_id": self.group_id
+                }
+        return data
 
 # class Categorical(db.Model):
 #     id: so.Mapped[int] = so.mapped_column(primary_key=True)
