@@ -1,6 +1,13 @@
 let taskCounter = 0;
 
 $(document).ready(function () {
+    var userElement = document.getElementById("current-user");
+    var currentUser = {
+        id: userElement.getAttribute("data-id"),
+        username: userElement.getAttribute("data-username")
+    };
+    console.log("Current User:", currentUser);
+
     // Delete todo
     $(".groups").on("click", ".delete", function () {
         $(this).closest("li").remove();
@@ -65,6 +72,27 @@ $(document).ready(function () {
         let newGroup = inputGroupElement.val().trim();
         
         if (newGroup==="") {return };
+        
+        GroupTaskData={
+            name: newGroup,
+            user_id: currentUser.id
+        }
+        
+        // Send the task data to Flask
+        try {
+            let response = await fetch("api/group-task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(GroupTaskData)
+            });
+
+            let result = await response.json();
+            console.log(result.message);  // Log success message from Flask
+        } catch (error) {
+            console.error("Error saving task:", error);
+        }
 
         console.log(newGroup);
         let newGroupElement = `<div class="col group">
