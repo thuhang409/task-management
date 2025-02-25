@@ -75,6 +75,14 @@ $(document).ready(function () {
     // Edit group name
     editGroupName();
 
+    $(".list-group-item button[data-bs-toggle='modal']").on("click", function () {
+        // Find the closest task item and get the task name
+        var taskName = $(this).closest(".list-group-item").find(".taskText").text().trim();
+        
+        // Set the task name in the modal input field
+        $("#task-name").val(taskName);
+    });
+
 });
 
 function updateTaskCounter() {
@@ -85,7 +93,7 @@ function updateTaskCounter() {
 }
 
 
-const apiKey = ""
+const apiKey = "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"
 
 // const apiKey = "";
 
@@ -213,6 +221,42 @@ function decorateBagde(badgeElement, category) {
     }
 }
 
+async function getOrCreateCategory(categoryName) {
+    try {
+        // Gọi API GET để kiểm tra xem Category có tồn tại không
+        let response = await fetch(`api/category?name=${categoryName}`);
+        if (response.ok) {
+            let category = await response.json();
+            return category; // Trả về category nếu tìm thấy
+        } 
+        
+        // Nếu không tìm thấy (404), thì tạo mới Category
+        if (response.status === 404) {
+            response = await fetch(`api/category`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name: categoryName })
+            });
+
+            if (!response.ok) {
+                throw new Error("Không thể tạo Category");
+            }
+
+            let newCategory = await response.json();
+            return newCategory;
+        }
+
+        // 3️⃣ Xử lý lỗi khác
+        throw new Error("Lỗi khi gọi API");
+        
+    } catch (error) {
+        console.error("Lỗi:", error);
+        return null;
+    }
+}
+
 function addTask() {
     $(".groups").on("click", ".group", async function (event) {
         event.preventDefault();
@@ -224,12 +268,16 @@ function addTask() {
         
         if (newTodo !== "") {
             let inputData = await processTask(newTodo);
-            
+            console.log(inputData.category)
+            category = await getOrCreateCategory(inputData.category)
+
             TaskData={
                 name: inputData.task,
                 group_id: grouptask_id,
-                category: inputData.category
+                category_id: category.id
             }
+            console.log("category", TaskData)
+
             // Send the task data to Flask
             try {
                 let response = await fetch("api/task", {
@@ -250,7 +298,7 @@ function addTask() {
             <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true" data-id="${TaskData.id}">
                 <div class="ms-2 me-auto">
                     <div class="fw-bold taskText">${TaskData.name}</div>
-                    <span class="badge rounded-pill bg-primary categories">${TaskData.category}</span>
+                    <span class="badge rounded-pill bg-primary categories">${inputData.category}</span>
                 </div>
                 <span class="far fa-trash-alt delete"></span>
             </li>`);
@@ -374,7 +422,7 @@ function editGroupName(){
                             headers: {
                                 "Content-Type": "application/json"
                             },
-                            body: JSON.stringify({name:newTextx}),
+                            body: JSON.stringify({name:newText}),
                         });
                         let result = await response.json();
                     } catch (error) {

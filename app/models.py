@@ -20,7 +20,8 @@ class User(UserMixin, db.Model):
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     about_me: so.Mapped[Optional[str]] = so.mapped_column(sa.String(140))
     last_seen: so.Mapped[Optional[datetime]] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
-    
+
+    categories: so.WriteOnlyMapped["Category"] = so.relationship(back_populates="user")
     group_tasks: so.WriteOnlyMapped["GroupTask"] = so.relationship(back_populates="user")
 
     def __repr__(self):
@@ -61,32 +62,37 @@ class GroupTask(db.Model):
 class Task(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     name: so.Mapped[str] = so.mapped_column(sa.String(255), nullable=False)
-    description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
-    group_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("group_task.id"), nullable=False)
+    description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text, nullable=True)
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
-    category: so.Mapped[str] = so.mapped_column(sa.String(100), nullable=True)
+
+    group_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("group_task.id"), nullable=False)
     group_task: so.Mapped["GroupTask"] = so.relationship(back_populates="tasks")
-    # categoricals: so.WriteOnlyMapped["Categorical"] = so.relationship(secondary="task_categorical", back_populates="tasks")
+
+    category_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey("category.id"), nullable=True)
+    category: so.Mapped[Optional["Category"]] = so.relationship("Category", back_populates="tasks")
 
     def __repr__(self):
         return f"Task {self.name}"
     
     def to_dict(self):
-        data = {"id":self.id,
-                "name": self.name,
-                "group_id": self.group_id
-                }
+        data = {
+            "id": self.id,
+            "name": self.name,
+            "group_id": self.group_id,
+            "category_id": self.category_id  # Thêm category_id vào dict
+        }
         return data
 
-# class Categorical(db.Model):
-#     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-#     name: so.Mapped[str] = so.mapped_column(sa.String(100), unique=True, nullable=False)
+class Category(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    name: so.Mapped[str] = so.mapped_column(sa.String(100), unique=True, nullable=False)
+    
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), nullable=False)
+    user: so.Mapped["User"] = so.relationship("User", back_populates="categories")
 
-#     tasks: so.WriteOnlyMapped["Task"] = so.relationship(secondary="task_categorical", back_populates="categoricals")
-
-# class TaskCategorical(db.Model):
-#     task_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("task.id"), primary_key=True)
-#     categorical_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("categorical.id"), primary_key=True)
+    tasks: so.WriteOnlyMapped["Task"] = so.relationship("Task", back_populates="category")
+    def __repr__(self):
+        return f"Category {self.name} (User {self.user_id})"
 
 # class ActivitiesLog(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)

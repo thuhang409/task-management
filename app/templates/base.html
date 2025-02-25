@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://kit.fontawesome.com/1362334b71.js" crossorigin="anonymous"></script>
+  <!-- <script src="https://kit.fontawesome.com/1362334b71.js" crossorigin="anonymous"></script> -->
+  <script src="https://kit.fontawesome.com/271944b069.js" crossorigin="anonymous"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,27 +27,30 @@
   <header class="text-center text-light my-4">
     <h1 class="mb-4">Task Management
     </h1>
-    <ul class="navbar-nav mb-2 mb-lg-0">
-        {% if current_user.is_anonymous %}
-        <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{{ url_for('auth.register') }}">Register</a>
-        </li>
-        {% else %}
-        <li>
-            <div id="current-user" data-id="{{ current_user.id }}" data-username="{{ current_user.username }}">Hi, {{current_user.username}}</div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
-        </li>
-        {% endif %}
-    </ul>
+    <div class="navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if current_user.is_anonymous %}
+          <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{ url_for('auth.register') }}">Register</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+              <div id="current-user" data-id="{{ current_user.id }}" data-username="{{ current_user.username }}">Hi, {{current_user.username}}</div>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>
+          </li>
+          {% endif %}
+      </ul>
+    </div>
   </header> 
 
   {% block content %}{% endblock %}
-
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 
