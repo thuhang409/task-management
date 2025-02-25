@@ -9,6 +9,18 @@ from flask import request, jsonify
 
 
 
+@bp.route("/group-tasks", methods=['GET'])
+def get_group_task():
+    try:
+        # Assuming `Category` has a `user_id` column to filter categories per user
+        grouptasks = GroupTask.query.filter_by(user_id=current_user.id).all()
+        grouptasks_lst = [{"id": gtask.id, "name": gtask.name} for gtask in grouptasks]
+
+        return jsonify(grouptasks_lst), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
 @bp.route("/group-task", methods=['POST'])
 def create_group_task():
     data = request.get_json()
@@ -37,6 +49,15 @@ def edit_group_task(group_id):
     group.name = new_name
     db.session.commit()
     return group.to_dict(), 201
+
+@bp.route("/task/<int:task_id>", methods=['GET'])
+def get_task(task_id):
+    try:
+        task = Task.query.get(task_id)
+        data = {"id": task.id, "name": task.name, "description":task.description, "group_id":task.group_id, "category_id":task.category_id}
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @bp.route("/task", methods=['POST'])
 def create_task():
@@ -72,6 +93,12 @@ def edit_task(task_id):
     if "group_id" in data:
         task.group_id = data["group_id"]
 
+    if "category_id" in data:
+        task.category_id = data["category_id"]
+
+    if "description" in data:
+        task.description = data["description"]
+
     db.session.commit()
     return task.to_dict(), 201
 
@@ -86,6 +113,18 @@ def delete_task(task_id):
     db.session.commit()
     return jsonify({"message": "Task deleted successfully"}), 200
 
+
+@bp.route('/categories', methods=['GET'])
+def get_categories():
+    try:
+        # Assuming `Category` has a `user_id` column to filter categories per user
+        categories = Category.query.filter_by(user_id=current_user.id).all()
+        categories_list = [{"id": cat.id, "name": cat.name} for cat in categories]
+
+        return jsonify(categories_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 @bp.route('/category', methods=['GET'])
 def get_category():
     category_id = request.args.get('id', type=int)

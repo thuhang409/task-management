@@ -38,7 +38,7 @@ $(document).ready(function () {
     addTask();
 
     // Edit task
-    editTaskName()
+    editTaskName();
 
     // Search todo
     $(".search input").on("keyup", function () {
@@ -75,15 +75,70 @@ $(document).ready(function () {
     // Edit group name
     editGroupName();
 
-    $(".list-group-item button[data-bs-toggle='modal']").on("click", function () {
+    $(document).on("click", ".list-group-item button[data-bs-toggle='modal']", async function () {
         // Find the closest task item and get the task name
-        var taskName = $(this).closest(".list-group-item").find(".taskText").text().trim();
-        
+        let taskId = $(this).closest(".list-group-item").attr("data-id")
+        const response = await fetch(`/api/task/${taskId}`);
+        const data = await response.json();
+        console.log(data)
         // Set the task name in the modal input field
-        $("#task-name").val(taskName);
-    });
+        $("#task-name").val(data.name);
+        fetchCategories(data.category_id);
+        fetchStatus(data.group_id);
+        $("#ControlTextarea1").val(data.description);
+
+        $(document).on("click","#edit-task-button", function(){
+            const task_name =  $("#task-name").val().trim();
+            const categoryId = $("#inputGroupSelect01").val();
+            const groupId = $("#inputGroupSelect02").val();
+            const description = $("#ControlTextarea1").val();
+            updateTask(taskId, {name:task_name, category_id:categoryId, group_id:groupId, description:description});
+            // Close the modal
+            $("#editTaskModal").modal("hide");
+
+            // Reload the page after a short delay
+            setTimeout(() => location.reload(), 500);
+        })
+    })
 
 });
+
+async function fetchStatus(choose_id) {
+    try {
+        const response = await fetch("/api/group-tasks");
+        const data = await response.json();
+        const categorySelect = document.getElementById("inputGroupSelect02");
+        categorySelect.innerHTML = ""; // Clear existing options
+        data.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.id;
+            option.textContent = category.name;
+            categorySelect.appendChild(option);
+        });
+        categorySelect.value = choose_id;
+
+    } catch (error) {
+        console.error("Error fetching task group:", error);
+    }
+}
+
+async function fetchCategories(choose_id) {
+    try {
+        const response = await fetch("/api/categories");
+        const data = await response.json();
+        const categorySelect = document.getElementById("inputGroupSelect01");
+        categorySelect.innerHTML = ""; // Clear existing options
+        data.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.id;
+            option.textContent = category.name;
+            categorySelect.appendChild(option);
+        });
+        categorySelect.value = choose_id;
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+    }
+}
 
 function updateTaskCounter() {
     $(".col").each(function () {
@@ -178,16 +233,16 @@ function enableDragAndDrop() {
         }
         updateTaskCounter();
         
-        await updateTask(taskdataId, new_group_id);
+        await updateTask(taskdataId, {group_id:new_group_id});
     })   
 }
 
-async function updateTask(taskId, newGroupId) {
+async function updateTask(taskId, newData) {
     try {
         const response = await fetch(`api/task/${taskId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ group_id: newGroupId }),
+            body: JSON.stringify(newData),
         });
 
         if (!response.ok) {
