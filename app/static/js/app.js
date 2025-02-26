@@ -62,36 +62,46 @@ function deleteTask() {
 }
 
 function editTask() {
-    $(document).on("click", ".list-group-item button[data-bs-toggle='modal']", async function () {
-        // Find the closest task item and get the task name
-        let taskId = $(this).closest(".list-group-item").attr("data-id")
-        const data = await apiService.getTask(taskId);
+    $(document).on("click", ".list-group-item span[data-bs-toggle='modal']", async function () {
+        let taskId = $(this).closest(".list-group-item").attr("data-id");
+        console.log("taskId:", taskId); // Debugging
         
-        if (data){
+        const data = await apiService.getTask(taskId);
+        console.log("Fetched Data:", data); // Debugging
+
+        if (data) {
             $("#task-name").val(data.name);
             fetchCategories(data.category_id);
             fetchStatus(data.group_id);
             $("#ControlTextarea1").val(data.description);
 
-            $(document).on("click","#edit-task-button", async function(){
-                const task_name =  $("#task-name").val().trim();
+            // Prevent duplicate event listeners
+            $(document).off("click", "#edit-task-button").on("click", "#edit-task-button", async function() {
+                const task_name = $("#task-name").val().trim();
                 const categoryId = $("#inputGroupSelect01").val();
                 const groupId = $("#inputGroupSelect02").val();
                 const description = $("#ControlTextarea1").val();
-                const response = await apiService.putTask(taskId, {name:task_name, category_id:categoryId, group_id:groupId, description:description});
-                
-                if (response) {
-                    // Close the modal
-                    $("#editTaskModal").modal("hide");
 
-                    // Reload the page after a short delay
-                    setTimeout(() => location.reload(), 500);
+                console.log("Updating task:", { task_name, categoryId, groupId, description });
+
+                const response = await apiService.putTask(taskId, {
+                    name: task_name,
+                    category_id: categoryId,
+                    group_id: groupId,
+                    description: description
+                });
+
+                console.log("Update Response:", response); 
+
+                if (response) {
+                    $("#exampleModal").modal("hide"); 
+                    setTimeout(() => location.reload(), 10);
                 }
-            })
+            });
         }
-        
-    })
+    });
 }
+
 
 async function fetchStatus(choose_id) {
     try {
@@ -210,17 +220,12 @@ function decorateBagde(badgeElement, category) {
 
 async function getOrCreateCategory(categoryName) {
     try {
-        const existedCate = await apiService.getCategory(categoryName)
-        if (existedCate) {
-            return existedCate; // Trả về category nếu tìm thấy
-        } 
-        
-        if (!existedCate) {
-            const createdCate = await apiService.postCategory({ name: categoryName })
-            if (createdCate) return createdCate;
-        }
+        const existedCate = await apiService.getCategory(categoryName);
+        if (existedCate) return existedCate; 
 
-        // 3️⃣ Xử lý lỗi khác
+        const createdCate = await apiService.postCategory({ name: categoryName })
+        if (createdCate) return createdCate;
+
         throw new Error("Lỗi khi gọi API");
         
     } catch (error) {
@@ -262,10 +267,8 @@ function addTask() {
                     <div class="fw-bold taskText">${TaskData.name}</div>
                     <span class="badge rounded-pill bg-primary categories">${inputData.category}</span>
                 </div>
+                <span class="fa-solid fa-pencil" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;"></span>
                 <span class="far fa-trash-alt delete"></span>
-                <button data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <span class="fa-solid fa-pencil"></span>
-                </button>
             </li>`);
             $(this).find('.list-group').append(taskItem);
             let badgeElement = taskItem.find(".categories");

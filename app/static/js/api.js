@@ -113,6 +113,7 @@ var apiService = {
             return await response.json();
         } catch (error){
             console.error("Failed to get all categories")
+            return null
         }
     },
 
@@ -122,7 +123,7 @@ var apiService = {
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
         } catch (error){
-            console.error("Failed to get all categories")
+            console.error("Failed to get this category")
         }
     },
 
@@ -142,7 +143,7 @@ var apiService = {
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
         } catch(error) {
-            console.error("Failed to get category");
+            console.error("Failed to update category");
         }
     },
 
