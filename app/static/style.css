@@ -40,6 +40,9 @@ body {
     border-radius: 13px 13px;
     transition: 0.8s;
   }
+  .list-group {
+    font-size: 18px;
+  }
   
   /* .list-group li::before {
     content:"";

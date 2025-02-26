@@ -22,10 +22,8 @@
                   <div class="fw-bold taskText">{{task.name}}</div>
                   <span class="badge rounded-pill bg-primary categories">{{task.category.name}}</span>
               </div>
+              <span class="fa-solid fa-pencil" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; margin-right: 5px;"></span>
               <span class="far fa-trash-alt delete"></span>
-              <button data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <span class="fa-solid fa-pencil"></span>
-              </button>
             </li>
           {% endfor %}
         </ul>
