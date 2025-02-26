@@ -1,4 +1,3 @@
-let taskCounter = 0;
 
 $(document).ready(function () {
     var userElement = document.getElementById("current-user");
@@ -10,37 +9,19 @@ $(document).ready(function () {
     console.log("Current User:", currentUser);
     }
 
-    // Delete todo
-    $(".groups").on("click", ".delete", async function () {
+    // Delete task
+    deleteTask();
 
-        const taskId = $(this).closest("li").attr("data-id"); 
-        console.log(taskId)
-        
-        try {
-            const response = await fetch(`api/task/${taskId}`, { method: 'DELETE' });
-    
-            if (response.ok) {
-                $(this).closest("li").remove();
-                updateTaskCounter();
-            } else {
-                alert("Error deleting task");
-                console.log(response)
-            }
-        } catch (error) {
-            console.error("Failed to delete task:", error);
-            alert("Error deleting task");
-        }
-
-    });
-    
-
-    // Add a new to do
+    // Add a new task
     addTask();
 
-    // Edit task
+    // Edit task name
     editTaskName();
 
-    // Search todo
+    // Edit Task
+    editTask();
+
+    // Search task
     $(".search input").on("keyup", function () {
         let searchText = $(this).val().toLowerCase();
         $(".list-group li").each(function () {
@@ -50,63 +31,71 @@ $(document).ready(function () {
         });
     });
 
-    // Check and uncheck
-    $(".list-group").on("click", "li", function () {
-        $(this).toggleClass("checked");
-    });
-    
     // Drag and drop
     enableDragAndDrop();
 
     // Count task
     updateTaskCounter();
     
-    // Display the conversation
-    $("#btn-send").on("click", function(e) {
-        e.preventDefault();
-        messageText = $("input.message")
-        $(".conversation").append(`<div>You: ${messageText.val()}</div>`)
-        messageText.val("")
-    });
-
     // Add new group
     addGroupTask(currentUser);
 
     // Edit group name
     editGroupName();
 
+});
+
+function deleteTask() {
+    $(".groups").on("click", ".delete", async function () {
+
+        const taskId = $(this).closest("li").attr("data-id"); 
+        console.log(taskId)
+
+        response = await apiService.deleteTask(taskId);
+        
+        if (response) {
+            $(this).closest("li").remove();
+            updateTaskCounter();
+        }
+
+    });
+}
+
+function editTask() {
     $(document).on("click", ".list-group-item button[data-bs-toggle='modal']", async function () {
         // Find the closest task item and get the task name
         let taskId = $(this).closest(".list-group-item").attr("data-id")
-        const response = await fetch(`/api/task/${taskId}`);
-        const data = await response.json();
-        console.log(data)
-        // Set the task name in the modal input field
-        $("#task-name").val(data.name);
-        fetchCategories(data.category_id);
-        fetchStatus(data.group_id);
-        $("#ControlTextarea1").val(data.description);
+        const data = await apiService.getTask(taskId);
+        
+        if (data){
+            $("#task-name").val(data.name);
+            fetchCategories(data.category_id);
+            fetchStatus(data.group_id);
+            $("#ControlTextarea1").val(data.description);
 
-        $(document).on("click","#edit-task-button", function(){
-            const task_name =  $("#task-name").val().trim();
-            const categoryId = $("#inputGroupSelect01").val();
-            const groupId = $("#inputGroupSelect02").val();
-            const description = $("#ControlTextarea1").val();
-            updateTask(taskId, {name:task_name, category_id:categoryId, group_id:groupId, description:description});
-            // Close the modal
-            $("#editTaskModal").modal("hide");
+            $(document).on("click","#edit-task-button", async function(){
+                const task_name =  $("#task-name").val().trim();
+                const categoryId = $("#inputGroupSelect01").val();
+                const groupId = $("#inputGroupSelect02").val();
+                const description = $("#ControlTextarea1").val();
+                const response = await apiService.putTask(taskId, {name:task_name, category_id:categoryId, group_id:groupId, description:description});
+                
+                if (response) {
+                    // Close the modal
+                    $("#editTaskModal").modal("hide");
 
-            // Reload the page after a short delay
-            setTimeout(() => location.reload(), 500);
-        })
+                    // Reload the page after a short delay
+                    setTimeout(() => location.reload(), 500);
+                }
+            })
+        }
+        
     })
-
-});
+}
 
 async function fetchStatus(choose_id) {
     try {
-        const response = await fetch("/api/group-tasks");
-        const data = await response.json();
+        const data = await apiService.getAllGroupTasks();
         const categorySelect = document.getElementById("inputGroupSelect02");
         categorySelect.innerHTML = ""; // Clear existing options
         data.forEach(category => {
@@ -124,8 +113,7 @@ async function fetchStatus(choose_id) {
 
 async function fetchCategories(choose_id) {
     try {
-        const response = await fetch("/api/categories");
-        const data = await response.json();
+        const data = await apiService.getAllCategories();
         const categorySelect = document.getElementById("inputGroupSelect01");
         categorySelect.innerHTML = ""; // Clear existing options
         data.forEach(category => {
@@ -147,61 +135,25 @@ function updateTaskCounter() {
     });
 }
 
-
-const apiKey = "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"
-
-// const apiKey = "";
-
-function processTask(task) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: "https://api.openai.com/v1/chat/completions",
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            data: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                    { role: "system", content: "You are a chatbot that converts natural language input into a structured to-do list." },
-                    { role: "user", content: `Extract the task, classify its status (To Do, Doing, Done), categorical (Personal, Work, Social, Other) from this sentence: "${task}". Return the response in JSON format.` }
-                ],
-            }),
-            success: function (response) {
-                // console.log(response);
-                let reply = response.choices[0].message.content;
-                try {
-                    let taskData = JSON.parse(reply);
-
-                    // Ensure required fields exist, or set defaults
-                    taskData.task = taskData.task || task;
-                    taskData.status = taskData.status || "To Do";
-                    taskData.category = taskData.category || "undefined";
-
-                    // console.log(taskData);
-                    resolve(taskData);
-                } catch (error) {
-                    let errorData = {
-                        "task": task,
-                        "status": "To Do",
-                        "category": "undefined"
-                    };
-                    resolve(errorData);
-                    console.log("Error when parsing data");
-                }
-            },
-            error: function () {
-                let errorData = {
-                    "task": task,
-                    "status": "To Do",
-                    "category": "undefined"
-                };
-                resolve(errorData);
-                console.log("Error when calling API");
-            }
-        });
-    });
+async function processTask(task) {
+    const response = await apiService.classifyTask(task);
+    if (response){
+        const reply = response.choices[0].message.content;
+        const taskData = JSON.parse(reply);
+        console.log("taskData", taskData)
+        return {
+            task: taskData.task || task,
+            category: taskData.category || "undefined",
+            description: taskData.description || ""
+        }
+    }
+    else {
+        return {
+            task: task,
+            category: "undefined",
+            description:""
+        }
+    }
 }
 
 function enableDragAndDropItem(item) {
@@ -233,28 +185,8 @@ function enableDragAndDrop() {
         }
         updateTaskCounter();
         
-        await updateTask(taskdataId, {group_id:new_group_id});
+        await apiService.putTask(taskdataId, {group_id:new_group_id});
     })   
-}
-
-async function updateTask(taskId, newData) {
-    try {
-        const response = await fetch(`api/task/${taskId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newData),
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to move task");
-        }
-
-        const data = await response.json();
-        console.log("Task moved:", data);
-    } catch (error) {
-        console.error("Error moving task:", error);
-        alert("Failed to move task.");
-    }
 }
 
 function decorateBagde(badgeElement, category) {
@@ -278,29 +210,14 @@ function decorateBagde(badgeElement, category) {
 
 async function getOrCreateCategory(categoryName) {
     try {
-        // Gọi API GET để kiểm tra xem Category có tồn tại không
-        let response = await fetch(`api/category?name=${categoryName}`);
-        if (response.ok) {
-            let category = await response.json();
-            return category; // Trả về category nếu tìm thấy
+        const existedCate = await apiService.getCategory(categoryName)
+        if (existedCate) {
+            return existedCate; // Trả về category nếu tìm thấy
         } 
         
-        // Nếu không tìm thấy (404), thì tạo mới Category
-        if (response.status === 404) {
-            response = await fetch(`api/category`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ name: categoryName })
-            });
-
-            if (!response.ok) {
-                throw new Error("Không thể tạo Category");
-            }
-
-            let newCategory = await response.json();
-            return newCategory;
+        if (!existedCate) {
+            const createdCate = await apiService.postCategory({ name: categoryName })
+            if (createdCate) return createdCate;
         }
 
         // 3️⃣ Xử lý lỗi khác
@@ -323,30 +240,20 @@ function addTask() {
         
         if (newTodo !== "") {
             let inputData = await processTask(newTodo);
-            console.log(inputData.category)
-            category = await getOrCreateCategory(inputData.category)
+            console.log(inputData);
+            category = await getOrCreateCategory(inputData.category);
 
             TaskData={
                 name: inputData.task,
                 group_id: grouptask_id,
-                category_id: category.id
+                category_id: category.id,
+                description: inputData.description
             }
-            console.log("category", TaskData)
 
             // Send the task data to Flask
-            try {
-                let response = await fetch("api/task", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(TaskData)
-                });
-
-                let result = await response.json();
-                TaskData.id = result.id
-            } catch (error) {
-                console.error("Error saving task:", error);
+            response = await apiService.postTask(TaskData);
+            if (response) {           
+                TaskData.id = response.id
             }
 
             taskItem = $(`
@@ -356,6 +263,9 @@ function addTask() {
                     <span class="badge rounded-pill bg-primary categories">${inputData.category}</span>
                 </div>
                 <span class="far fa-trash-alt delete"></span>
+                <button data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <span class="fa-solid fa-pencil"></span>
+                </button>
             </li>`);
             $(this).find('.list-group').append(taskItem);
             let badgeElement = taskItem.find(".categories");
@@ -383,17 +293,7 @@ function editTaskName() {
                 let newText = $(this).val();
                 // edit task api
                 if (newText != currentText){
-                    try {
-                        let response = await fetch(`api/task/${task_id}`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({name:newText})
-                        });
-                    } catch (error) {
-                        console.error("Error saving task:", error);
-                    }
+                    apiService.putTask(taskId, {name:newText});
                 }
                 $(this).replaceWith(`<div class="fw-bold taskText">${newText}</div>`);
             }
@@ -410,30 +310,14 @@ function addGroupTask(currentUser) {
         
         if (newGroup==="") {return };
         
-        GroupTaskData={
+        const data = await apiService.postGroupTask({
             name: newGroup,
             user_id: currentUser.id
-        }
-        
-        // Send the task data to Flask
-        try {
-            let response = await fetch("api/group-task", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(GroupTaskData)
-            });
+        })
 
-            let result = await response.json();
-            GroupTaskData.id = result.id
-        } catch (error) {
-            console.error("Error saving task:", error);
-        }
-
-        let newGroupElement = `<div class="col group"  data-id=${GroupTaskData.id}>
+        let newGroupElement = `<div class="col group" data-id=${data.id}>
                             <div>
-                            <span  class="group-name" >${newGroup}</span>
+                            <span  class="group-name" >${data.name}</span>
                             <span class="badge bg-secondary task-count"></span>
                             </div>
                             
@@ -471,18 +355,7 @@ function editGroupName(){
                 if (newText != currentText){
                     console.log("hmm")
                     // api edit group task
-                    try {
-                        let response = await fetch(`api/group_task/${group_id}`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({name:newText}),
-                        });
-                        let result = await response.json();
-                    } catch (error) {
-                        console.error("Error saving task:", error);
-                    }
+                    apiService.putGroupTask(group_id, {name:newText})
                 }
                 $(this).replaceWith(`<span class="group-name">${newText}</span>`);
 
@@ -490,27 +363,3 @@ function editGroupName(){
         })
     });
 }
-// function openForm() {
-//     document.getElementById("myForm").style.display = "block";
-//   }
-  
-// function closeForm() {
-//     document.getElementById("myForm").style.display = "none";
-// }
-
-// function checkScrollable() {
-//     let groupCount = $(".groups .group").length;
-//     if (groupCount > 3) {
-//         $(".groups-container").css("overflow-x", "auto");
-//     } else {
-//         $(".groups-container").css("overflow-x", "hidden");
-//     }
-// }
-
-// // Call this function when a new group is added
-// $(".groups").on("click", ".new-group", function () {
-//     setTimeout(checkScrollable, 100); // Wait for the new group to render
-// });
-
-// // Also check on page load
-// $(document).ready(checkScrollable);

@@ -10,7 +10,7 @@ from flask import request, jsonify
 
 
 @bp.route("/group-tasks", methods=['GET'])
-def get_group_task():
+def get_group_tasks():
     try:
         # Assuming `Category` has a `user_id` column to filter categories per user
         grouptasks = GroupTask.query.filter_by(user_id=current_user.id).all()
@@ -68,6 +68,7 @@ def create_task():
         name=data.get('name'),
         group_id=data.get('group_id'),
         category_id=data.get('category_id'),
+        description=data.get('description'),
     )
 
     # Add task to the database

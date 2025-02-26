@@ -49,10 +49,10 @@ body {
     background-size: cover;
     padding: 10px;
   } */
-
+/* 
   .list-group li.checked .taskText{
     text-decoration: line-through;
-  }
+  } */
 
   /* .list-group li.checked::before {
     background-image: url("images/checked2.png");
