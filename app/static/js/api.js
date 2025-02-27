@@ -1,4 +1,3 @@
-apiKey = "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"
 
 var apiService = {
 
@@ -101,8 +100,16 @@ var apiService = {
         }
     },
 
-    deleteGroupTask: async function(){
-
+    deleteGroupTask: async function(gtaskId){
+        try {
+            const response = await fetch(`api/group_task/${gtaskId}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to delete group task:", error);
+            alert("Error deleting group task");
+            throw error
+        }
     },
 
     // Category

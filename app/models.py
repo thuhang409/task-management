@@ -33,8 +33,11 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-    def grouptasks(self):
+    def get_grouptasks(self):
         return db.session.scalars(sa.select(GroupTask).where(GroupTask.user_id == self.id)).all()
+    
+    def get_categories(self):
+        return db.session.scalars(sa.select(Category).where(Category.user_id == self.id)).all()
 
 
 
@@ -44,7 +47,7 @@ class GroupTask(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("user.id"), nullable=False)
 
     user: so.Mapped["User"] = so.relationship(back_populates="group_tasks")
-    tasks: so.WriteOnlyMapped["Task"] = so.relationship(back_populates="group_task")
+    tasks: so.WriteOnlyMapped["Task"] = so.relationship(back_populates="group_task", passive_deletes=True)
 
     def __repr__(self):
         return f"Group Task {self.name}"

@@ -28,7 +28,7 @@ def create_group_task():
     # Extract task data from the request
     new_grouptask = GroupTask(
         name=data.get('name'),
-        user_id=data.get('user_id')
+        user_id=current_user.id
     )
 
     # Add task to the database
@@ -49,6 +49,21 @@ def edit_group_task(group_id):
     group.name = new_name
     db.session.commit()
     return group.to_dict(), 201
+
+@bp.route('/group_task/<int:gtask_id>', methods=['DELETE'])
+def delete_group_task(gtask_id):
+    gtask = GroupTask.query.get(gtask_id)
+    if not gtask:
+        return jsonify({"error": "Group task not found"}), 404
+    
+    # Delete all task
+    # Task.query.filter_by(group_id=gtask_id).delete()
+
+    db.session.delete(gtask)
+    db.session.commit()
+
+    return jsonify({"message": "GroupTask and related tasks deleted successfully"}), 200
+
 
 @bp.route("/task/<int:task_id>", methods=['GET'])
 def get_task(task_id):

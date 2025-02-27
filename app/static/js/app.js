@@ -1,13 +1,6 @@
 
 $(document).ready(function () {
-    var userElement = document.getElementById("current-user");
-    if (userElement){    
-        var currentUser = {
-        id: userElement.getAttribute("data-id"),
-        username: userElement.getAttribute("data-username")
-    };
-    console.log("Current User:", currentUser);
-    }
+
 
     // Delete task
     deleteTask();
@@ -38,12 +31,19 @@ $(document).ready(function () {
     updateTaskCounter();
     
     // Add new group
-    addGroupTask(currentUser);
+    addGroupTask();
 
     // Edit group name
     editGroupName();
 
+    // Delete group task
+    deleteGroupTask();
+
+    // Badge Color
+    decorateBagde();
+
 });
+
 
 function deleteTask() {
     $(".groups").on("click", ".delete", async function () {
@@ -198,24 +198,23 @@ function enableDragAndDrop() {
         await apiService.putTask(taskdataId, {group_id:new_group_id});
     })   
 }
+function getPastelColor(categoryId) {
+    let hue = (parseInt(categoryId, 10) * 137) % 360; // Unique hue per ID
+    return `hsl(${hue}, 30%, 50%)`; // Soft pastel color (60% saturation, 80% lightness)
+}
 
-function decorateBagde(badgeElement, category) {
-    switch (category) {
-        case "Work":
-            badgeElement.addClass("bg-primary");
-            break;
-        case "Personal":
-            badgeElement.addClass("bg-warning text-dark");
-            break;
-        case "Social":
-            badgeElement.addClass("bg-success");
-            break;
-        case "Other":
-            badgeElement.addClass("bg-danger");
-            break;
-        default:
-            badgeElement.addClass("bg-secondary");
-    }
+function decorateBagde() {      
+    $(".categories").each(function() {
+        let category = $(this).text().trim();
+        let color = getPastelColor($(this).attr("data-id"));
+        $(this).css({ 
+            "background-color": color,
+            "color": "white",
+            "padding": "5px 10px",
+            "border-radius": "5px"
+        });
+    });
+
 }
 
 async function getOrCreateCategory(categoryName) {
@@ -265,14 +264,23 @@ function addTask() {
             <li class="list-group-item d-flex justify-content-between align-items-center" draggable="true" data-id="${TaskData.id}">
                 <div class="ms-2 me-auto">
                     <div class="fw-bold taskText">${TaskData.name}</div>
-                    <span class="badge rounded-pill bg-primary categories">${inputData.category}</span>
+                    <span class="badge rounded-pill categories" data-id="${TaskData.category_id}">${inputData.category}</span>
                 </div>
-                <span class="fa-solid fa-pencil" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer;"></span>
+                <span class="fa-solid fa-pencil" data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; margin-right: 5px;"></span>
                 <span class="far fa-trash-alt delete"></span>
             </li>`);
+            
+            // Bagde Color
+            const color = getPastelColor(taskItem.attr("data-id"));
+            taskItem.find(".categories").css({ 
+                "background-color": color,
+                "color": "white",
+                "padding": "5px 10px",
+                "border-radius": "5px"
+            });
+
             $(this).find('.list-group').append(taskItem);
-            let badgeElement = taskItem.find(".categories");
-            decorateBagde(badgeElement,inputData.category);
+            decorateBagde();
             inputTaskElement.val("");
 
             // Add dragstart 
@@ -315,15 +323,16 @@ function addGroupTask(currentUser) {
         
         const data = await apiService.postGroupTask({
             name: newGroup,
-            user_id: currentUser.id
         })
 
         let newGroupElement = `<div class="col group" data-id=${data.id}>
-                            <div>
-                            <span  class="group-name" >${data.name}</span>
-                            <span class="badge bg-secondary task-count"></span>
-                            </div>
-                            
+                                <div class="group-header">
+                                    <div>
+                                        <span  class="group-name" >${data.name}</span>
+                                        <span class="badge bg-secondary task-count"></span>
+                                    </div>
+                                    <i class="fa-solid fa-xmark delete-group" id="deleteGroupButton"></i>
+                                </div>
                             <ul class="list-group todos mx-auto text-light">
                             </ul>
                         
@@ -365,4 +374,32 @@ function editGroupName(){
             }
         })
     });
+}
+
+async function addCategory(){
+    const name = $("#newCategoryInput").val().trim();
+    if (!name) return alert("Enter a category name!");
+
+    const response = await apiService.postCategory({name:name})
+
+    if (response) {
+        $("#newCategoryInput").value = "";
+        cateItem = $(`<li class="category" id="category-${response.id}">${response.name}</li>`);
+        $("#categoryList").append(cateItem);
+    } 
+}
+
+async function deleteGroupTask(){
+    $(document).on("click", ".delete-group", async function() {
+        var group_element = $(this).closest(".group");  // Tìm phần tử cha "group"
+        var group_id = group_element.data("id");       // Lấy ID từ data-id
+        
+        if (!group_id) return;  // Kiểm tra ID hợp lệ
+    
+        const response = await apiService.deleteGroupTask(group_id);
+        if (response) {
+            group_element.remove();
+            console.log(`Deleted GroupTask ID: ${group_id}`);
+        }
+    })
 }

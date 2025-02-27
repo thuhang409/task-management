@@ -38,7 +38,10 @@
           </li>
           {% else %}
           <li class="nav-item">
-              <div id="current-user" data-id="{{ current_user.id }}" data-username="{{ current_user.username }}">Hi, {{current_user.username}}</div>
+              <div id="current-user" data-id="{{ current_user.id }}" data-username="{{ current_user.username }}">Hi, {{current_user.username}}
+              <button class="btn" id="openModalBtn" data-bs-toggle="modal" data-bs-target="#categoryModal" >Manage Categories</button>
+              </div>
+
           </li>
           <li class="nav-item">
               <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">Logout</a>

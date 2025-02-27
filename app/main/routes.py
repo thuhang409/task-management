@@ -10,5 +10,7 @@ from app.main import bp
 @bp.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
-    posts = current_user.grouptasks()
-    return render_template("index.html",  title='Home', posts=posts) 
+    posts = current_user.get_grouptasks()
+    categories = current_user.get_categories()
+    return render_template("index.html",  title='Home', posts=posts, categories=categories)
+

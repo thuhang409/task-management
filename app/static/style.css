@@ -117,3 +117,10 @@ body {
     min-width: 200px; /* Ensure each group has enough space */
     flex-shrink: 0; /* Prevent shrinking */
 }
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Đưa i ra góc phải */
+  padding: 8px;
+}
