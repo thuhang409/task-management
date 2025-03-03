@@ -10,7 +10,7 @@ from flask import request, jsonify
 
 
 @bp.route("/group-tasks", methods=['GET'])
-def get_group_tasks():
+def get_all_group_tasks():
     try:
         # Assuming `Category` has a `user_id` column to filter categories per user
         grouptasks = GroupTask.query.filter_by(user_id=current_user.id).all()
@@ -20,6 +20,21 @@ def get_group_tasks():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@bp.route("/group_task/<int:group_id>", methods=['GET'])
+def get_group_task(group_id):
+    try:
+        group_task = GroupTask.query.get(group_id)
+        if not group_task:
+            return jsonify({"error": "Group task not found"}), 404
+            
+        return jsonify({
+            "id": group_task.id,
+            "name": group_task.name,
+            "user_id": group_task.user_id
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @bp.route("/group-task", methods=['POST'])
 def create_group_task():

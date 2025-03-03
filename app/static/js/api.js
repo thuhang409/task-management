@@ -1,17 +1,17 @@
-
 var apiService = {
 
     // Task 
-    getTask: async function(taskId){
+    getTask: async function(taskId) {
         try {
             const response = await fetch(`/api/task/${taskId}`);
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
         } catch (error) {
             console.error("failed to get task:", error);
-        }},
-  
-    putTask: async function(taskId, newData){
+        }
+    },
+
+    putTask: async function(taskId, newData) {
         try {
             const response = await fetch(`api/task/${taskId}`, {
                 method: "PUT",
@@ -23,9 +23,10 @@ var apiService = {
         } catch (error) {
             console.error("Error update task:", error);
             alert("Failed to update task.");
-        }},
+        }
+    },
 
-    postTask: async function(TaskData){
+    postTask: async function(TaskData) {
         try {
             let response = await fetch("api/task", {
                 method: "POST",
@@ -38,10 +39,10 @@ var apiService = {
             return await response.json();
         } catch (error) {
             console.error("Error saving task:", error);
-    }
+        }
     },
 
-    deleteTask: async function(taskId){
+    deleteTask: async function(taskId) {
         try {
             const response = await fetch(`api/task/${taskId}`, { method: 'DELETE' });
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -54,7 +55,7 @@ var apiService = {
     },
 
     // GroupTask
-    getAllGroupTasks: async function(){
+    getAllGroupTasks: async function() {
         try {
             const response = await fetch("/api/group-tasks");
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -64,11 +65,18 @@ var apiService = {
         }
     },
 
-    getGroupTask: async function(){
-       
+    getGroupTask: async function(groupId) {
+        try {
+            const response = await fetch(`api/group_task/${groupId}`);
+            if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to get group task:", error);
+            throw error;
+        }
     },
 
-    putGroupTask: async function(group_id, updateData){
+    putGroupTask: async function(group_id, updateData) {
         try {
             const response = await fetch(`api/group_task/${group_id}`, {
                 method: "PUT",
@@ -84,7 +92,7 @@ var apiService = {
         }
     },
 
-    postGroupTask: async function(GroupTaskData){
+    postGroupTask: async function(GroupTaskData) {
         try {
             let response = await fetch("api/group-task", {
                 method: "POST",
@@ -100,7 +108,7 @@ var apiService = {
         }
     },
 
-    deleteGroupTask: async function(gtaskId){
+    deleteGroupTask: async function(gtaskId) {
         try {
             const response = await fetch(`api/group_task/${gtaskId}`, { method: 'DELETE' });
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -113,33 +121,33 @@ var apiService = {
     },
 
     // Category
-    getAllCategories: async function(){
+    getAllCategories: async function() {
         try {
             const response = await fetch("/api/categories");
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
-        } catch (error){
+        } catch (error) {
             console.error("Failed to get all categories")
             return null
         }
     },
 
-    getCategory: async function(categoryName){
+    getCategory: async function(categoryName) {
         try {
             const response = await fetch(`api/category?name=${categoryName}`);
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
-        } catch (error){
+        } catch (error) {
             console.error("Failed to get this category")
         }
     },
 
-    putCategory: async function(){
+    putCategory: async function() {
 
     },
 
-    postCategory: async function(newData){
-        try{
+    postCategory: async function(newData) {
+        try {
             const response = await fetch(`api/category`, {
                 method: "POST",
                 headers: {
@@ -149,17 +157,17 @@ var apiService = {
             });
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
             return await response.json();
-        } catch(error) {
+        } catch (error) {
             console.error("Failed to update category");
         }
     },
 
-    deleteCategory: async function(){
+    deleteCategory: async function() {
 
     },
 
     // OpenAI API calling
-    classifyTask: async function(task){
+    classifyTask: async function(task) {
         prompt = `
         Extract the task and classify its category as one of the following:
                                 
@@ -196,17 +204,16 @@ var apiService = {
                     model: "gpt-3.5-turbo",
                     messages: [
                         { role: "system", content: "You are a chatbot that converts natural language input into a structured to-do list." },
-                        { role: "user", content: prompt}
+                        { role: "user", content: prompt }
                     ],
                 })
             });
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-        const result = await response.json();
-        console.log("result", result);
-        return result
-        } catch(error) {
+            if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+            const result = await response.json();
+            console.log("result", result);
+            return result
+        } catch (error) {
             console.error("Error when calling API", error);
         }
     }
 }
-
