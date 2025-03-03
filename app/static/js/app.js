@@ -182,8 +182,7 @@ function updateTaskCounter() {
 async function processTask(task) {
     const response = await apiService.classifyTask(task);
     if (response) {
-        const reply = response.choices[0].message.content;
-        const taskData = JSON.parse(reply);
+        const taskData = JSON.parse(response);
         console.log("taskData", taskData)
         return {
             task: taskData.task || task,

@@ -168,44 +168,16 @@ var apiService = {
 
     // OpenAI API calling
     classifyTask: async function(task) {
-        prompt = `
-        Extract the task and classify its category as one of the following:
-                                
-        - Personal: Related to self-care, hobbies, or personal errands.  
-        - Work: Related to job, study, or professional responsibilities.  
-        - Social: Related to communication, events, or social interactions.  
-        - Other: Does not fit the above categories.  
-        
-        Return a JSON object with:  
-        - **task**: The core action of the task.  
-        - **category**: The appropriate category.  
-        - **description**: The full original input.  
-                                
-        If no clear task is detected, return the full sentence as the task name.
-                                
-        ### Examples ###
-        "Buy groceries for the weekend" → {"task": "Buy groceries", "category": "Personal", "description": "Buy groceries for the weekend"}
-        "Prepare the monthly sales report" → {"task": "Prepare sales report", "category": "Work", "description": "Prepare the monthly sales report"}
-        "Call John to confirm dinner plans" → {"task": "Call John", "category": "Social", "description": "Call John to confirm dinner plans"}
-        "Watch a documentary about space" -> {"task": "Watch documentary", "category": "Other", "description": "Watch a documentary about space"}
 
-        Now classify: "${task}"
-        Return JSON only.
-        `
         console.log(task)
         try {
-            const response = await fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
+            const response = await fetch('/api/classify-task', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: "gpt-3.5-turbo",
-                    messages: [
-                        { role: "system", content: "You are a chatbot that converts natural language input into a structured to-do list." },
-                        { role: "user", content: prompt }
-                    ],
+                    task: task
                 })
             });
             if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
