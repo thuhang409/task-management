@@ -17,13 +17,18 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     
-    from app.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    # from app.auth import bp as auth_bp
+    # app.register_blueprint(auth_bp, url_prefix='/auth')
 
-    from app.main import bp as main_bp
-    app.register_blueprint(main_bp)
+    # from app.main import bp as main_bp
+    # app.register_blueprint(main_bp)
 
-    from app.api import bp as api_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
+    # from app.api import bp as api_bp
+    # app.register_blueprint(api_bp, url_prefix='/api')
+
+    from app.controller import bp_api, bp_auth, bp_main
+    app.register_blueprint(bp_auth, url_prefix='/auth')
+    app.register_blueprint(bp_main)
+    app.register_blueprint(bp_api, url_prefix='/api')
     
     return app

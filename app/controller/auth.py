@@ -6,12 +6,12 @@ from flask_login import login_user, current_user, logout_user, login_required
 import sqlalchemy as sa
 
 from app import db
-from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm
+from app.controller import bp_auth
+from app.controller.forms import LoginForm, RegistrationForm
 from app.models import User
 
 
-@bp.route('/register', methods=['GET', 'POST'])
+@bp_auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -25,7 +25,7 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title="Register", form=form)
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp_auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -45,7 +45,7 @@ def login():
         return redirect(next_page)
     return render_template('auth/login.html', title="Login",form=form)
 
-@bp.route('/logout')
+@bp_auth.route('/logout')
 @login_required
 def logout():
     logout_user()
