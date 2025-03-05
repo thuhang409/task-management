@@ -6,7 +6,7 @@ body {
   }
   
   .container {
-    max-width: 1000px;
+    max-width: 100%;
     align-items: center;
   }
   
@@ -99,10 +99,19 @@ body {
   */
   
   .groups-container {
-    width: 100%; /* Adjust based on layout */
-    overflow: auto; /* Enable horizontal scrolling */
-    white-space: nowrap; /* Prevent wrapping */
-    padding-bottom: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70%;
+    overflow: auto; /* Kích hoạt cuộn ngang */
+    padding: 10px 0;
+    white-space: nowrap;
+}
+
+  .scroll-content {
+  height: 100%; /* Giả sử nội dung cao hơn container */
+  padding: 10px;
 }
 
 .groups {
